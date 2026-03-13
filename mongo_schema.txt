@@ -1,0 +1,543 @@
+# Updated:
+
+# 1. Users Collection
+
+Handles authentication and roles.
+
+Collection: `users`
+
+```
+constUserSchema=newmongoose.Schema({
+  name: {
+    type:String,
+    required:true
+  },
+
+  email: {
+    type:String,
+    required:true,
+    unique:true
+  },
+
+  password: {
+    type:String,
+    required:true
+  },
+
+  role: {
+    type:String,
+    enum: ["student","owner","admin"],
+    default:"student"
+  },
+
+  phone:String,
+
+  profileImage:String,
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 2. Student Profile
+
+Extra information used for **recommendations and roommate matching**.
+
+Collection: `student_profiles`
+
+```
+constStudentProfileSchema=newmongoose.Schema({
+  userId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  college:String,
+
+  gender: {
+    type:String,
+    enum: ["Male","Female"]
+  },
+
+  preferredLocation:String,
+
+  budget:Number,
+
+  preferredRoomType: {
+    type:String,
+    enum: ["Single","Double","Triple","Dormitory"]
+  },
+
+  foodPreference: {
+    type:String,
+    enum: ["Veg","Non-Veg","Any"]
+  },
+
+  smokingPreference:Boolean,
+
+  sleepTime:String,
+
+  cleanlinessLevel:String
+});
+```
+
+---
+
+# 3. Neighborhood Collection
+
+Stores **area-level analytics and insights**.
+
+Collection: `neighborhoods`
+
+```
+constNeighborhoodSchema=newmongoose.Schema({
+
+  locationName: {
+    type:String,
+    required:true
+  },
+
+  city:String,
+
+  safetyScore:Number,
+
+  transportScore:Number,
+
+  convenienceScore:Number,
+
+  lifestyleScore:Number,
+
+  environmentScore:Number,
+
+  averageRent:Number,
+
+  nearbyHospitals: [String],
+
+  nearbyColleges: [String],
+
+  nearbyTransport: [String],
+
+  popularAmenities: [String]
+});
+```
+
+---
+
+# 4. PG Listings
+
+Main PG property details.
+
+Collection: `pg_listings`
+
+```
+constPgListingSchema=newmongoose.Schema({
+
+  pgName: {
+    type:String,
+    required:true
+  },
+
+  address:String,
+
+  location:String,
+
+  neighborhoodId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Neighborhood"
+  },
+
+  ownerId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  rent:Number,
+
+  genderPreference: {
+    type:String,
+    enum: ["Boys","Girls","Co-ed"]
+  },
+
+  amenities: {
+    wifi:Boolean,
+    food:Boolean,
+    laundry:Boolean,
+    parking:Boolean,
+    powerBackup:Boolean,
+    cctv:Boolean,
+    gym:Boolean,
+    studyRoom:Boolean
+  },
+
+  images: [String],
+
+  description:String,
+
+  ratingAverage: {
+    type:Number,
+    default:0
+  },
+
+  totalReviews: {
+    type:Number,
+    default:0
+  },
+
+  isActive: {
+    type:Boolean,
+    default:true
+  },
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 5. PG Rooms
+
+Each PG can have multiple room types.
+
+Collection: `pg_rooms`
+
+```
+constPgRoomSchema=newmongoose.Schema({
+
+  pgId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgListing"
+  },
+
+  roomType: {
+    type:String,
+    enum: ["Single","Double","Triple","Dormitory"]
+  },
+
+  sharingCapacity:Number,
+
+  totalBeds:Number,
+
+  roomRent:Number,
+
+  acAvailable:Boolean
+});
+```
+
+---
+
+# 6. Bed Availability
+
+Tracks real-time occupancy.
+
+Collection: `pg_availability`
+
+```
+constPgAvailabilitySchema=newmongoose.Schema({
+
+  roomId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgRoom"
+  },
+
+  availableBeds:Number,
+
+  status: {
+    type:String,
+    enum: ["Available","Limited","Full"]
+  },
+
+  lastUpdatedOn: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 7. Visit Booking
+
+Students request visits to PGs.
+
+Collection: `visit_bookings`
+
+```
+constVisitBookingSchema=newmongoose.Schema({
+
+  studentId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  pgId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgListing"
+  },
+
+  roomId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgRoom"
+  },
+
+  visitDate:Date,
+
+  status: {
+    type:String,
+    enum: ["Pending","Approved","Rejected"]
+  },
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 8. PG Reviews
+
+Student feedback.
+
+Collection: `pg_reviews`
+
+```
+constPgReviewSchema=newmongoose.Schema({
+
+  pgId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgListing"
+  },
+
+  studentId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  rating: {
+    type:Number,
+    min:1,
+    max:5
+  },
+
+  reviewText:String,
+
+  sentimentScore:Number,
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 9. Favorites
+
+Saved PG listings.
+
+Collection: `favorites`
+
+```
+constFavoriteSchema=newmongoose.Schema({
+
+  studentId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  pgId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgListing"
+  },
+
+  savedAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 10. Roommate Preferences
+
+Collection: `roommate_preferences`
+
+```
+constRoommatePreferenceSchema=newmongoose.Schema({
+
+  studentId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  sleepTime:String,
+
+  cleanlinessLevel:String,
+
+  smoking:Boolean,
+
+  studyHabits:String,
+
+  budget:Number
+});
+```
+
+---
+
+# 11. Roommate Matches
+
+Collection: `roommate_matches`
+
+```
+constRoommateMatchSchema=newmongoose.Schema({
+
+  studentA: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  studentB: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  compatibilityScore:Number,
+
+  status: {
+    type:String,
+    enum: ["Pending","Accepted","Rejected"]
+  }
+});
+```
+
+---
+
+# 12. Notifications
+
+Collection: `notifications`
+
+```
+constNotificationSchema=newmongoose.Schema({
+
+  userId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  message:String,
+
+  type:String,
+
+  isRead: {
+    type:Boolean,
+    default:false
+  },
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 13. Complaints
+
+Collection: `complaints`
+
+```
+constComplaintSchema=newmongoose.Schema({
+
+  studentId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  pgId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"PgListing"
+  },
+
+  complaintText:String,
+
+  status: {
+    type:String,
+    enum: ["Open","Resolved"]
+  },
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# 14. Recommendation Logs (AI)
+
+Collection: `recommendation_logs`
+
+```
+constRecommendationLogSchema=newmongoose.Schema({
+
+  studentId: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+
+  recommendedPgIds: [
+    {
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"PgListing"
+    }
+  ],
+
+  algorithmVersion:String,
+
+  createdAt: {
+    type:Date,
+    default:Date.now
+  }
+});
+```
+
+---
+
+# Final Database Structure
+
+Your **MOV Stay MongoDB database** will contain:
+
+```
+users
+student_profiles
+neighborhoods
+
+pg_listings
+pg_rooms
+pg_availability
+
+visit_bookings
+pg_reviews
+favorites
+
+roommate_preferences
+roommate_matches
+
+notifications
+complaints
+recommendation_logs
+```
+
+structure
