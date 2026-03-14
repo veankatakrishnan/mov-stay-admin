@@ -24,8 +24,12 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 bg-slate-900 h-screen fixed left-0 top-0 text-slate-300 flex flex-col">
-      <div className="h-16 flex items-center px-6 border-b border-slate-800">
-        <h1 className="text-xl font-bold text-white tracking-wider">MOV STAY ADMIN</h1>
+      <div className="h-20 flex items-center justify-center px-4 border-b border-slate-800 bg-white/5 backdrop-blur-sm">
+        <img 
+          src="/MOV Stay Logo.png" 
+          alt="MOV Stay Logo" 
+          className="h-10 w-auto object-contain drop-shadow-md rounded-md"
+        />
       </div>
       
       <nav className="flex-1 py-6 px-3 space-y-1">

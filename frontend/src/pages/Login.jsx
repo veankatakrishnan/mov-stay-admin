@@ -29,12 +29,14 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
-            <Building2 className="w-8 h-8 text-white" />
-          </div>
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/MOV Stay Logo.png" 
+            alt="MOV Stay Logo" 
+            className="h-16 w-auto object-contain drop-shadow-sm rounded-lg"
+          />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+        <h2 className="mt-2 text-center text-3xl font-bold tracking-tight text-gray-900">
           Admin Portal
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
