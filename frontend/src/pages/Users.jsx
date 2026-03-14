@@ -16,7 +16,8 @@ const Users = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/admin/data/users?page=${page}&limit=${limit}`);
+      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await axios.get(`${baseURL}/admin/data/users?page=${page}&limit=${limit}`);
       setData(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error) {
