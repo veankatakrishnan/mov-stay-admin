@@ -163,6 +163,23 @@ exports.getRoommatesAnalytics = async (req, res) => {
     ]);
     const averageAcceptedCompatibilityScore = scoreStats.length > 0 ? Number(scoreStats[0].avgScore.toFixed(1)) : 0;
 
+    // Compatibility score distribution
+    const compatibilityDistributionRaw = await RoommateMatch.aggregate([
+      { $match: { compatibilityScore: { $type: "number" } } },
+      {
+        $bucket: {
+          groupBy: "$compatibilityScore",
+          boundaries: [0, 50, 60, 70, 80, 90, 101],
+          default: "Other",
+          output: { count: { $sum: 1 } }
+        }
+      }
+    ]);
+    const compatibilityDistribution = compatibilityDistributionRaw.filter(b => b._id !== "Other").map(b => ({
+      range: `${b._id}-${b._id < 90 ? b._id + 9 : 100}%`,
+      count: b.count
+    }));
+
     // AI recommendation total logs
     const totalAIRecommendationsMade = await RecommendationLog.countDocuments();
 
@@ -171,6 +188,7 @@ exports.getRoommatesAnalytics = async (req, res) => {
       acceptedMatches,
       matchStatus,
       averageAcceptedCompatibilityScore,
+      compatibilityDistribution,
       totalAIRecommendationsMade
     });
   } catch (error) {
